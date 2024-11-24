@@ -110,16 +110,39 @@ class TDMPC2(torch.nn.Module):
 		return a.cpu()
 
 	@torch.no_grad()
-	def _estimate_value(self, z, actions, task):
-		"""Estimate value of a trajectory starting at latent state z and executing given actions."""
-		G, discount = 0, 1
-		for t in range(self.cfg.horizon):
-			reward = math.two_hot_inv(self.model.reward(z, actions[t], task), self.cfg)
-			z = self.model.next(z, actions[t], task)
-			G = G + discount * reward
-			discount_update = self.discount[torch.tensor(task)] if self.cfg.multitask else self.discount
-			discount = discount * discount_update
-		return G + discount * self.model.Q(z, self.model.pi(z, task)[1], task, return_type='avg')
+	def _estimate_value(self, z, actions, task, num_rollouts=10):
+		"""
+		Estimate the value of a trajectory starting at latent state z and 
+		executing given actions, averaged over multiple stochastic rollouts.
+
+		Args:
+			z: Initial latent state.
+			actions: Sequence of actions.
+			task: Task index or descriptor.
+			num_rollouts: Number of rollouts to simulate.
+		
+		Returns:
+			Averaged value estimate across rollouts.
+		"""
+		total_value = 0
+
+		for rollout in range(num_rollouts):
+			z_rollout, G, discount = z.clone(), 0, 1  # Clone the initial state for each rollout
+			for t in range(self.cfg.horizon):
+				reward = math.two_hot_inv(self.model.reward(z_rollout, actions[t], task), self.cfg)
+				z_rollout = self.model.next(z_rollout, actions[t], task)  # Use stochastic next
+				G += discount * reward
+				discount_update = self.discount[torch.tensor(task)] if self.cfg.multitask else self.discount
+				discount *= discount_update
+			
+			# Add terminal Q-value to the trajectory value
+			terminal_value = discount * self.model.Q(
+				z_rollout, self.model.pi(z_rollout, task)[1], task, return_type='avg'
+			)
+			total_value += G + terminal_value
+
+		# Return the average value across rollouts
+		return total_value / num_rollouts
 
 	@torch.no_grad()
 	def _plan(self, obs, t0=False, eval_mode=False, task=None):
