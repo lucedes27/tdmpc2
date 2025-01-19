@@ -17,7 +17,7 @@ class MujocoEnv(gym.Env):
     self.done = False
 
     self.goal = MujocoEnv._generate_goal()
-    self.max_episode_steps = 10000000
+    self.max_episode_steps = 1000000
 
     self.action_space = Box(-3.4028234663852886e+38, 3.4028234663852886e+38, (7,), np.float32)
     self.observation_space = Box(-np.inf, np.inf, (14,), np.float32)
@@ -52,12 +52,19 @@ class MujocoEnv(gym.Env):
     # # update viewer
     # self.viewer.sync()
 
+    if self.timestep > 100000 or abs(reward) < 0.05:
+      done = True
+      self.done = True
+
     return observation, reward, done, info
 
   def reset(self):
     # Reset MuJoCo
     mujoco.mj_resetData(self.model, self.sim)
     mujoco.mj_forward(self.model, self.sim)
+
+    self.timestep = 0
+    self.done = False
 
     # Get observation 
     obs = self._get_observation()
@@ -84,6 +91,7 @@ class MujocoEnv(gym.Env):
     # reward function
     # euclidian distance between goal point and bracelet_with_vision_link which is the end of the arm
     cur_pos = self.sim.site_xpos[-1]
-    dist = np.linalg.norm(self.goal - cur_pos)
+    print(f"current_pos: {cur_pos}")
+    dist = -np.linalg.norm(self.goal - cur_pos)
     return dist
 

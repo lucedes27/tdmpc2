@@ -25,6 +25,7 @@ class OnlineTrainer(Trainer):
 
 	def eval(self):
 		"""Evaluate a TD-MPC2 agent."""
+		print("EVAL")
 		ep_rewards, ep_successes = [], []
 		for i in range(self.cfg.eval_episodes):
 			obs, done, ep_reward, t = self.env.reset(), False, 0, 0
@@ -34,6 +35,7 @@ class OnlineTrainer(Trainer):
 				torch.compiler.cudagraph_mark_step_begin()
 				action = self.agent.act(obs, t0=t==0, eval_mode=True)
 				obs, reward, done, info = self.env.step(action)
+				print(reward)
 				ep_reward += reward
 				t += 1
 				if self.cfg.save_video:
@@ -98,6 +100,7 @@ class OnlineTrainer(Trainer):
 			else:
 				action = self.env.rand_act()
 			obs, reward, done, info = self.env.step(action)
+			# print(reward)
 			self._tds.append(self.to_td(obs, action, reward))
 
 			# Update agent
