@@ -63,9 +63,9 @@ def evaluate(cfg: dict):
 		print(colored(f'Evaluating agent on {len(cfg.tasks)} tasks:', 'yellow', attrs=['bold']))
 	else:
 		print(colored(f'Evaluating agent on {cfg.task}:', 'yellow', attrs=['bold']))
-	if cfg.save_video:
-		video_dir = os.path.join(cfg.work_dir, 'videos')
-		os.makedirs(video_dir, exist_ok=True)
+	# if cfg.save_video:
+	# 	video_dir = os.path.join(cfg.work_dir, 'videos')
+	# 	os.makedirs(video_dir, exist_ok=True)
 	scores = []
 	tasks = cfg.tasks if cfg.multitask else [cfg.task]
 	for task_idx, task in enumerate(tasks):
@@ -74,20 +74,20 @@ def evaluate(cfg: dict):
 		ep_rewards, ep_successes = [], []
 		for i in range(cfg.eval_episodes):
 			obs, done, ep_reward, t = env.reset(task_idx=task_idx), False, 0, 0
-			if cfg.save_video:
-				frames = [env.render()]
+			# if cfg.save_video:
+			# 	frames = [env.render()]
 			while not done:
 				action = agent.act(obs, t0=t==0, task=task_idx)
 				obs, reward, done, info = env.step(action)
 				ep_reward += reward
 				t += 1
-				if cfg.save_video:
-					frames.append(env.render())
+				# if cfg.save_video:
+				# 	frames.append(env.render())
 			ep_rewards.append(ep_reward)
 			ep_successes.append(info['success'])
-			if cfg.save_video:
-				imageio.mimsave(
-					os.path.join(video_dir, f'{task}-{i}.mp4'), frames, fps=15)
+			# if cfg.save_video:
+			# 	imageio.mimsave(
+			# 		os.path.join(video_dir, f'{task}-{i}.mp4'), frames, fps=15)
 		ep_rewards = np.mean(ep_rewards)
 		ep_successes = np.mean(ep_successes)
 		if cfg.multitask:

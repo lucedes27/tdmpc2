@@ -92,8 +92,9 @@ class VideoRecorder:
 		self.record(env)
 
 	def record(self, env):
-		if self.enabled:
-			self.frames.append(env.render())
+		# if self.enabled:
+		# 	self.frames.append(env.render())
+		pass
 
 	def save(self, step, key='videos/eval_video'):
 		if self.enabled and len(self.frames) > 0:
