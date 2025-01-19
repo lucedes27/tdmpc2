@@ -86,7 +86,7 @@ class TDMPC2(torch.nn.Module):
 		self.model.load_state_dict(state_dict["model"])
 
 	@torch.no_grad()
-	def act(self, obs, t0=False, eval_mode=False, task=None):
+	def act(self, obs, t0=False, eval_mode=False, task=None, add_noise=True):
 		"""
 		Select an action by planning in the latent space of the world model.
 
@@ -95,10 +95,19 @@ class TDMPC2(torch.nn.Module):
 			t0 (bool): Whether this is the first observation in the episode.
 			eval_mode (bool): Whether to use the mean of the action distribution.
 			task (int): Task index (only used for multi-task experiments).
+			add_noise (bool): Whether to add Gaussian noise to the action (domain randomization).
 
 		Returns:
 			torch.Tensor: Action to take in the environment.
 		"""
+
+		# Check if self.cfg.obs_noise is defined and add Gaussian noise to the observations
+		if hasattr(self.cfg, 'obs_noise') and self.cfg.obs_noise is not None:
+			noise = torch.randn_like(obs) * self.cfg.obs_noise if add_noise else 0
+		else:
+			noise = torch.zeros_like(obs) if add_noise else 0
+		obs = obs + noise
+
 		obs = obs.to(self.device, non_blocking=True).unsqueeze(0)
 		if task is not None:
 			task = torch.tensor([task], device=self.device)
