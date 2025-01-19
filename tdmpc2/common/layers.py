@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.distributions as dist
 from tensordict import from_modules
 from copy import deepcopy
 
@@ -127,6 +128,26 @@ def mlp(in_dim, mlp_dims, out_dim, act=None, dropout=0.):
 	mlp.append(NormedLinear(dims[-2], dims[-1], act=act) if act else nn.Linear(dims[-2], dims[-1]))
 	return nn.Sequential(*mlp)
 
+def gaussian_mlp(in_dim, mlp_dims, out_dim, act=None, dropout=0.):
+	"""
+	Basic building block of TD-MPC2.
+	MLP with LayerNorm, Mish activations, and optionally dropout.
+	"""
+	if isinstance(mlp_dims, int):
+		mlp_dims = [mlp_dims]
+	dims = [in_dim] + mlp_dims + [out_dim]
+	mlp = nn.ModuleList()
+	for i in range(len(dims) - 2):
+		mlp.append(NormedLinear(dims[i], dims[i+1], dropout=dropout*(i==0)))
+	mlp.append(NormedLinear(dims[-2], dims[-1], act=act) if act else nn.Linear(dims[-2], dims[-1]))
+	return nn.Sequential(*mlp)
+
+def gaussian(out):
+	"""Returns sample from normal dist from MLP"""
+	mean, log_variance = out.split(out.size(0) // 2, dim=0)
+	variance = torch.exp(log_variance)
+	output = dist.Normal(mean, variance).rsample()
+	return output
 
 def conv(in_shape, num_channels, act=None):
 	"""
