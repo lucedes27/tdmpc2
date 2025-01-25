@@ -29,7 +29,7 @@ dependencies:
     - patchelf==0.17.2.1
     - omegaconf==2.3.0
     - moviepy==1.0.3
-    - mujoco==2.3.1
+    - mujoco==3.2.7
     - mujoco_py
     - numpy==1.24.4
     - tensordict-nightly
