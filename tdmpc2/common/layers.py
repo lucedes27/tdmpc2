@@ -144,7 +144,7 @@ def gaussian_mlp(in_dim, mlp_dims, out_dim, act=None, dropout=0.):
 
 def gaussian(out):
 	"""Returns sample from normal dist from MLP"""
-	mean, log_variance = out.split(out.size(0) // 2, dim=1)
+	mean, log_variance = out.split(out.size(1) // 2, dim=1)
 	variance = torch.exp(log_variance)
 	output = dist.Normal(mean, variance).rsample()
 	return output
