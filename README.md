@@ -111,6 +111,7 @@ All single-task checkpoints expect `model_size=5`. Multi-task checkpoints are av
 ### Training
 
 See below examples on how to train TD-MPC**2** on a single task (online RL) and on multi-task datasets (offline RL). We recommend configuring [Weights and Biases](https://wandb.ai) (`wandb`) in `config.yaml` to track training progress.
+Set `wandb_api_key.txt` with your wandb api key.
 
 ```
 $ python train.py task=mt80 model_size=48 batch_size=1024

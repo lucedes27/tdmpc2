@@ -7,14 +7,20 @@ services:
       dockerfile: docker/Dockerfile
     image: rl-research:latest
     command: /bin/bash -c "python train.py task=dog-run compile=true"
-    # command: tail -f /dev/null
+    # command: echo ${WANDB_API_KEY}
     environment:
       - CUDA_VISIBLE_DEVICES=0
       - NVIDIA_VISIBLE_DEVICES=0
-      - WANDB_API_KEY=8d08b1eb8d21d6be66fd01f64062badbe23e58a2
+      - WANDB_API_KEY=/run/secrets/wandb_api_key
+    secrets:
+      - wandb_api_key
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
               capabilities: [gpu]
+
+secrets:
+  wandb_api_key:
+    file: wandb_api_key.txt
