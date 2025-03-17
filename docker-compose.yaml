@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  rl_research:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: rl-research:latest
+    command: /bin/bash -c "python train.py task=dog-run compile=true"
+    # command: tail -f /dev/null
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=0
+      - WANDB_API_KEY=8d08b1eb8d21d6be66fd01f64062badbe23e58a2
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
