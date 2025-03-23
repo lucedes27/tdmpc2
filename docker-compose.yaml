@@ -6,21 +6,14 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     image: rl-research:latest
-    command: /bin/bash -c "python train.py task=dog-run compile=true"
-    # command: echo ${WANDB_API_KEY}
-    environment:
-      - CUDA_VISIBLE_DEVICES=0
-      - NVIDIA_VISIBLE_DEVICES=0
-      - WANDB_API_KEY=/run/secrets/wandb_api_key
-    secrets:
-      - wandb_api_key
+    command: /bin/bash -c "python -u train.py task=kinova compile=false"
+    # command: tail -f /dev/null
+    env_file: "tdmpc2.env"
+    volumes:
+      - ./tdmpc2/:/root/tdmpc2/tdmpc2/
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
               capabilities: [gpu]
-
-secrets:
-  wandb_api_key:
-    file: wandb_api_key.txt

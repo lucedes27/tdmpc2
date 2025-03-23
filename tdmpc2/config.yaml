@@ -2,8 +2,12 @@ defaults:
     - override hydra/launcher: submitit_local
 
 # environment
-task: dog-run
+task: kinova
 obs: state
+max_episode_steps: 500
+viewer: false
+goal_threshold: 0.05
+vel_threshold: 0.01
 
 # evaluation
 checkpoint: ???
@@ -11,7 +15,7 @@ eval_episodes: 10
 eval_freq: 50000
 
 # training
-steps: 10_000_000
+steps: 1_000_000
 batch_size: 256
 reward_coef: 0.1
 value_coef: 0.1
@@ -66,12 +70,12 @@ wandb_project: RL-Research
 wandb_entity: vishalschool1234-university-of-waterloo
 wandb_silent: false
 enable_wandb: true
-save_csv: true
+save_csv: false
 
 # misc
 save_video: true
 save_agent: true
-seed: 1
+seed: 7
 
 # convenience
 work_dir: ???

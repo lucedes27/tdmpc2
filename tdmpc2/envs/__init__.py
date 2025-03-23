@@ -26,6 +26,7 @@ try:
 except:
 	make_myosuite_env = missing_dependencies
 
+from envs.kinova_env import KinovaEnv 
 
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
@@ -61,13 +62,16 @@ def make_env(cfg):
 
 	else:
 		env = None
-		for fn in [make_dm_control_env, make_maniskill_env, make_metaworld_env, make_myosuite_env]:
-			try:
-				env = fn(cfg)
-			except ValueError:
-				pass
-		if env is None:
-			raise ValueError(f'Failed to make environment "{cfg.task}": please verify that dependencies are installed and that the task exists.')
+		# for fn in [make_dm_control_env, make_maniskill_env, make_metaworld_env, make_myosuite_env]:
+		# 	try:
+		# 		env = fn(cfg)
+		# 	except ValueError:
+		# 		pass
+
+		env = KinovaEnv(cfg=cfg)
+
+		# if env is None:
+		# 	raise ValueError(f'Failed to make environment "{cfg.task}": please verify that dependencies are installed and that the task exists.')
 		env = TensorWrapper(env)
 	try: # Dict
 		cfg.obs_shape = {k: v.shape for k, v in env.observation_space.spaces.items()}

@@ -56,7 +56,7 @@ RUN mkdir -p /root/.mujoco && \
     find /root/.mujoco -uid 421709 -exec chown root:root {} \; && \
     python -c "import mujoco"
 
-COPY . /root/
+COPY . /root/tdmpc2
 
 # # gym
 # RUN pip install gym==0.21.0
@@ -76,4 +76,4 @@ COPY . /root/
 # success!
 RUN echo "Successfully built TD-MPC2 Docker image!"
 
-WORKDIR /root/tdmpc2
+WORKDIR /root/tdmpc2/tdmpc2
