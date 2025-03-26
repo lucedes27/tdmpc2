@@ -138,7 +138,7 @@ class GaussianSampler(torch.nn.Module):
 	def forward(self, out):
 		"""Returns sample from normal dist from MLP"""
 		mean, log_variance = out.split(out.size(-1) // 2, dim=1)
-		variance = torch.exp(1 + log_variance)
+		variance = torch.log(1 + torch.exp(log_variance))
 		with torch.no_grad():
 			epsilon = torch.randn_like(mean, device=torch.device('cuda:0'))
 		output = mean + epsilon * variance
